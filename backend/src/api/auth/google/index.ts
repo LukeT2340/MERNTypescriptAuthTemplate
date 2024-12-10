@@ -47,7 +47,7 @@ router.get("/callback", async (req, res) => {
       { upsert: true, new: true }
     )
 
-    const nonSensitiveUserData = nonSensitiveUser(user.toObject())
+    const nonSensitiveUserData = nonSensitiveUser(user)
     const token = generateToken(user._id)
 
     console.log({ ...nonSensitiveUserData, token })

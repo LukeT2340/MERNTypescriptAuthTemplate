@@ -4,6 +4,9 @@ const userSchema = new Schema({
   email: {
     type: String,
   },
+  password: {
+    type: String,
+  },
   googleId: {
     type: String,
   },

@@ -3,8 +3,9 @@ process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0" // Remove this line in production
 import express from "express"
 import "dotenv/config"
 import cors from "cors"
-import { connectToMongoServer } from "./utilities"
+import { connectToMongoServer, hashPassword } from "./utilities"
 import api from "./api"
+import User from "./models/User"
 
 const port = process.env.PORT || 3001
 
