@@ -1,5 +1,5 @@
 import { useLocation, useNavigate } from "react-router-dom"
-import { useAuthContext } from "../../contexts/useAuthContext"
+import { useAuthContext } from "../../contexts/AuthContext"
 
 const Callback: React.FC = () => {
   const location = useLocation()

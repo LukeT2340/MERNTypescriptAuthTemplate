@@ -1,30 +1,52 @@
 import React, { useState } from "react"
+import { useNavigate } from "react-router-dom"
 import { useFormik } from "formik"
 import * as Yup from "yup"
 
 const EmailLoginForm: React.FC = () => {
+  const navigate = useNavigate()
   const [emailFocused, setEmailFocused] = useState<boolean>(false)
   const [passwordFocused, setPasswordFocused] = useState<boolean>(false)
+  const [error, setError] = useState<string | null>(null)
 
-  // Formik logic
   const formik = useFormik({
     initialValues: {
       email: "",
       password: "",
     },
     validationSchema: Yup.object({
-      email: Yup.string()
-        .email("Invalid email address")
-        .required("Email is required"),
-      password: Yup.string().required("Password is required"),
+      email: Yup.string(),
+      password: Yup.string(),
     }),
-    onSubmit: (values) => {
-      console.log("Form Submitted", values)
+    onSubmit: async (values) => {
+      try {
+        const response = await fetch(
+          `${process.env.REACT_APP_BACKEND_URL}/api/auth/email/login`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              email: values.email,
+              password: values.password,
+            }),
+          }
+        )
+
+        const data = await response.json()
+
+        if (response.ok) {
+          navigate(data.redirectUrl)
+          return
+        }
+
+        setError(data.message)
+      } catch (error) {
+        console.log(error)
+      }
     },
   })
-
-  const isPasswordLabelActive =
-    passwordFocused || formik.values.password.length > 0
 
   return (
     <form
@@ -53,7 +75,10 @@ const EmailLoginForm: React.FC = () => {
           type='email'
           className='w-full border-none outline-none bg-white'
           value={formik.values.email}
-          onChange={formik.handleChange}
+          onChange={(e) => {
+            formik.handleChange(e)
+            setError(null)
+          }}
           onBlur={(e) => {
             formik.handleBlur(e)
             setEmailFocused(false)
@@ -84,7 +109,10 @@ const EmailLoginForm: React.FC = () => {
           type='password'
           className='w-full border-none outline-none bg-white'
           value={formik.values.password}
-          onChange={formik.handleChange}
+          onChange={(e) => {
+            formik.handleChange(e)
+            setError(null)
+          }}
           onBlur={(e) => {
             formik.handleBlur(e)
             setPasswordFocused(false)
@@ -92,6 +120,7 @@ const EmailLoginForm: React.FC = () => {
           onFocus={() => setPasswordFocused(true)}
         />
       </div>
+      <span>{error}</span>
 
       {/* Submit Button */}
       <button
@@ -113,7 +142,7 @@ const EmailLoginForm: React.FC = () => {
       {/* Sign up link */}
       <span className='w-fit mx-auto text-[16px] leading-[24px]'>
         Don't have an account?{" "}
-        <a href='/sign-up' className='text-blue-600'>
+        <a href='/signup' className='text-blue-600'>
           Sign up
         </a>
       </span>
