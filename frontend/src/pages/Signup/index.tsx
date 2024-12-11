@@ -39,7 +39,7 @@ const Signup: React.FC = () => {
 
 			const data = await response.json()
 		} catch (error) {
-			console.error(error)
+			setError("Error whilst signing up. Please try again later.")
 		} finally {
 			setLoading(false)
 		}
