@@ -47,6 +47,10 @@ router.get("/callback", async (req, res) => {
       { upsert: true, new: true }
     )
 
+    if (!user) {
+      return res.status(400).json({ message: "Something went wrong. Please try again later" })
+    }
+
     const nonSensitiveUserData = nonSensitiveUser(user)
     const token = generateToken(user._id)
 
