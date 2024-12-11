@@ -4,17 +4,25 @@ import Callback from "./pages/Callback"
 import Signup from "./pages/Signup"
 
 function App() {
-  return (
-    <div>
-      <Router>
-        <Routes>
-          <Route path='/login' element={<Login />} />
-          <Route path='/signup' element={<Signup />} />
-          <Route path='/callback' element={<Callback />} />
-        </Routes>
-      </Router>
-    </div>
-  )
+	return (
+		<div>
+			<Router>
+				<Routes>
+					<Route
+						path="/"
+						element={
+							<div className="w-screen h-screen flex justify-center items-center text-[200px]">
+								<h1>You are logged in</h1>
+							</div>
+						}
+					/>
+					<Route path="/login" element={<Login />} />
+					<Route path="/signup" element={<Signup />} />
+					<Route path="/callback" element={<Callback />} />
+				</Routes>
+			</Router>
+		</div>
+	)
 }
 
 export default App
