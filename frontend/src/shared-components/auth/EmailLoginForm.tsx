@@ -48,7 +48,7 @@ const EmailLoginForm: React.FC<Props> = ({ setLoading }) => {
 
 				setError(data.message)
 			} catch (error) {
-				console.log(error)
+				setError("Error whilst logging in. Please try again later.")
 			} finally {
 				setLoading(false)
 			}
@@ -135,14 +135,12 @@ const EmailLoginForm: React.FC<Props> = ({ setLoading }) => {
 			<button
 				type="submit"
 				className={`w-full p-3 rounded-full border duration-300 ease-out transition-all bg-black text-white border-black ${
-					formik.values.email.length === 0 ||
-					formik.values.password.length === 0
+					formik.values.email.length === 0 || formik.values.password.length < 8
 						? "opacity-80 cursor-not-allowed"
 						: " hover:opacity-80"
 				}`}
 				disabled={
-					formik.values.email.length === 0 ||
-					formik.values.password.length === 0
+					formik.values.email.length === 0 || formik.values.password.length < 8
 				}
 			>
 				Login
