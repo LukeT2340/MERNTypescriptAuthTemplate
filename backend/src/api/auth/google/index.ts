@@ -16,7 +16,7 @@ router.get("/", (req, res) => {
 })
 
 // Callback URL for handling the Google Login response
-router.get("/callback", async (req, res) => {
+router.get("/callback", async (req, res): Promise<any> => {
   const { code } = req.query
 
   try {
@@ -48,7 +48,9 @@ router.get("/callback", async (req, res) => {
     )
 
     if (!user) {
-      return res.status(400).json({ message: "Something went wrong. Please try again later" })
+      return res
+        .status(400)
+        .json({ message: "Something went wrong. Please try again later" })
     }
 
     const nonSensitiveUserData = nonSensitiveUser(user)

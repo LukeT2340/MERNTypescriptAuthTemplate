@@ -1,9 +1,11 @@
 import { useState } from "react"
 
-const EmailBox: React.FC<{
+interface Props {
   email: string
   setEmail: (arg0: string) => void
-}> = ({ email, setEmail }) => {
+}
+
+const EmailBox: React.FC<Props> = ({ email, setEmail }) => {
   const [emailFocused, setEmailFocused] = useState<boolean>(false)
 
   return (
@@ -28,7 +30,7 @@ const EmailBox: React.FC<{
           id='email'
           name='email'
           type='email'
-          className='w-full border-none outline-none bg-white'
+          className='w-full bg-white border-none outline-none'
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           onBlur={(e) => {

@@ -1,9 +1,18 @@
-import { FormikProps } from "formik"
 import { useState } from "react"
 
-const PasswordBox: React.FC<{
-  formik: FormikProps<{ email: string; password: string }>
-}> = ({ formik }) => {
+interface Props {
+  password: string
+  setPassword: (arg0: string) => void
+  confirmPassword: string
+  setConfirmPassword: (arg0: string) => void
+}
+
+const PasswordBox: React.FC<Props> = ({
+  password,
+  setPassword,
+  confirmPassword,
+  setConfirmPassword,
+}) => {
   const [passwordFocused, setPasswordFocused] = useState<boolean>(false)
   const [confirmPasswordFocused, setConfirmPasswordFocused] =
     useState<boolean>(false)
@@ -19,7 +28,7 @@ const PasswordBox: React.FC<{
         <label
           htmlFor='password'
           className={`absolute pointer-events-none left-4 transition-all duration-200 bg-white p-1 ${
-            formik.values.password.length > 0 || passwordFocused
+            password.length > 0 || passwordFocused
               ? "-top-3 text-xs"
               : "top-1/2 -translate-y-1/2"
           } ${passwordFocused ? "text-blue-500" : "text-gray-400"}`}
@@ -30,11 +39,10 @@ const PasswordBox: React.FC<{
           id='password'
           name='password'
           type='password'
-          className='w-full border-none outline-none bg-white'
-          value={formik.values.password}
-          onChange={() => formik.handleChange}
+          className='w-full bg-white border-none outline-none'
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
           onBlur={(e) => {
-            formik.handleBlur(e)
             setPasswordFocused(false)
           }}
           onFocus={() => setPasswordFocused(true)}
@@ -42,13 +50,13 @@ const PasswordBox: React.FC<{
       </div>
       <div
         className={`relative p-4 border w-full rounded-full ${
-          passwordFocused ? "border-blue-500" : "border-gray-200"
+          confirmPasswordFocused ? "border-blue-500" : "border-gray-200"
         } `}
       >
         <label
           htmlFor='password'
           className={`absolute pointer-events-none left-4 transition-all duration-200 bg-white p-1 ${
-            formik.values.password.length > 0 || confirmPasswordFocused
+            confirmPassword.length > 0 || confirmPasswordFocused
               ? "-top-3 text-xs"
               : "top-1/2 -translate-y-1/2"
           } ${confirmPasswordFocused ? "text-blue-500" : "text-gray-400"}`}
@@ -59,11 +67,10 @@ const PasswordBox: React.FC<{
           id='confirm-password'
           name='confirmPassword'
           type='password'
-          className='w-full border-none outline-none bg-white'
-          value={formik.values.password}
-          onChange={formik.handleChange}
+          className='w-full bg-white border-none outline-none'
+          value={confirmPassword}
+          onChange={(e) => setConfirmPassword(e.target.value)}
           onBlur={(e) => {
-            formik.handleBlur(e)
             setConfirmPasswordFocused(false)
           }}
           onFocus={() => setConfirmPasswordFocused(true)}
