@@ -1,74 +1,73 @@
 import { Router } from "express"
-import axios from "axios"
+import passport from "passport"
 import User from "../../../models/User"
-import {
-  encodeObjectToUrl,
-  generateToken,
-  nonSensitiveUser,
-} from "../../../utilities"
+import { nonSensitiveUser } from "../../../utilities"
 
 const router = Router()
 
-// Initiates the Google Login flow
-router.get("/", (req, res) => {
-  const url = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${process.env.GOOGLE_CLIENT_ID}&redirect_uri=${process.env.REDIRECT_URI}/api/auth/google/callback&response_type=code&scope=profile email`
-  res.redirect(url)
-})
+// Route to initiate Google login
+router.get(
+	"/login",
+	passport.authenticate("google", { scope: ["profile", "email"] })
+)
 
-// Callback URL for handling the Google Login response
-router.get("/callback", async (req, res): Promise<any> => {
-  const { code } = req.query
+// Route to handle Google callback
+router.get(
+	"/callback",
+	passport.authenticate("google", {
+		failureRedirect: "/login",
+	}),
+	async (req, res) => {
+		try {
+			if (!req.user) {
+				return res.status(401).json({ error: "Authentication failed" })
+			}
 
-  try {
-    // Exchange authorization code for access token
-    const { data } = await axios.post("https://oauth2.googleapis.com/token", {
-      client_id: process.env.GOOGLE_CLIENT_ID,
-      client_secret: process.env.GOOGLE_CLIENT_SECRET,
-      code,
-      redirect_uri: `${process.env.REDIRECT_URI}/api/auth/google/callback`,
-      grant_type: "authorization_code",
-    })
+			// Retrieve user from Passport
+			const googleUser = req.user as any
 
-    const { access_token } = data
-    console.log(access_token)
-    // Use access_token or id_token to fetch user profile
-    const { data: profile } = await axios.get(
-      "https://www.googleapis.com/oauth2/v1/userinfo",
-      {
-        headers: { Authorization: `Bearer ${access_token}` },
-      }
-    )
+			// Check if the user exists in the database
+			let user = await User.findOne({ email: googleUser.email })
+			if (!user) {
+				// Create a new user if they don't exist
+				user = await User.create({
+					email: googleUser.email,
+					name: googleUser.displayName,
+					googleId: googleUser.id,
+				})
+			} else {
+				await user.save()
+			}
 
-    const { email, id } = profile
+			// Attach user to session (already done by Passport)
+			req.login(user, (err) => {
+				if (err) {
+					return res.status(500).json({ error: "Login failed" })
+				}
 
-    const user = await User.findOneAndUpdate(
-      { googleId: id },
-      { email, googleId: id, verified: true },
-      { upsert: true, new: true }
-    )
+				const filteredUser = nonSensitiveUser(user)
 
-    if (!user) {
-      return res
-        .status(400)
-        .json({ message: "Something went wrong. Please try again later" })
-    }
+				res.redirect(
+					`${process.env.FRONTEND_URL}/callback?user=${encodeURIComponent(
+						JSON.stringify(filteredUser)
+					)}`
+				)
+			})
+		} catch (err) {
+			console.error("Error handling callback:", err)
+			res.status(500).json({ error: "Internal server error", details: err })
+		}
+	}
+)
 
-    const nonSensitiveUserData = nonSensitiveUser(user)
-    const token = generateToken(user._id)
-
-    console.log({ ...nonSensitiveUserData, token })
-
-    const redirectUrl = encodeObjectToUrl(
-      `${process.env.FRONTEND_URL}/callback`,
-      { ...nonSensitiveUserData, token }
-    )
-
-    // Code to handle user authentication and retrieval using the profile data
-    res.redirect(redirectUrl)
-  } catch (error) {
-    console.error("Error whilst logging in:", error)
-    res.redirect(`${process.env.FRONTEND_URL}`)
-  }
+// Route to handle logout
+router.post("/logout", (req, res) => {
+	req.logout((err) => {
+		if (err) {
+			return res.status(500).json({ error: "Logout failed" })
+		}
+		res.json({ message: "Logged out successfully" })
+	})
 })
 
 export default router

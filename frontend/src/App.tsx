@@ -1,7 +1,7 @@
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom"
 import Login from "./pages/Login"
-import Callback from "./pages/Callback"
 import Signup from "./pages/Signup"
+import Callback from "./pages/Callback"
 
 function App() {
 	return (
@@ -16,9 +16,9 @@ function App() {
 							</div>
 						}
 					/>
+					<Route path="/callback" element={<Callback />} />
 					<Route path="/login" element={<Login />} />
 					<Route path="/signup" element={<Signup />} />
-					<Route path="/callback" element={<Callback />} />
 				</Routes>
 			</Router>
 		</div>
