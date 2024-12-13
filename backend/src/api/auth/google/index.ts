@@ -34,6 +34,7 @@ router.get(
           email: googleUser.email,
           name: googleUser.displayName,
           googleId: googleUser.id,
+          verified: true,
         })
       } else {
         await user.save()
@@ -60,12 +61,12 @@ router.get(
 )
 
 // Route to handle logout
-router.post("/logout", (req, res) => {
+router.get("/logout", (req, res) => {
   req.logout((err) => {
     if (err) {
       return res.status(500).json({ error: "Logout failed" })
     }
-    res.json({ message: "Logged out successfully" })
+    res.redirect(`${process.env.FRONTEND_URL}/login`)
   })
 })
 

@@ -21,7 +21,6 @@ const app = express()
 app.use(express.json())
 app.use(cookieParser())
 
-// Session middleware
 app.use(
   session({
     secret: process.env.SESSION_SECRET || "your-secret-key",
@@ -31,32 +30,50 @@ app.use(
       httpOnly: true,
       secure: process.env.NODE_ENV === "production", // Use HTTPS in production
       maxAge: 3600000, // 1 hour
+      sameSite: "lax", // Add this line
     },
+    // Add these lines for additional session tracking
+    name: "sessionId", // Explicitly name the session cookie
+    rolling: true, // Reset cookie expiration on every request
   })
 )
 
 app.use(passport.initialize())
 app.use(passport.session())
 
+// Modify your serializeUser and deserializeUser
 passport.serializeUser((user: any, done) => {
   console.log("Serializing user:", user._id.toString())
   done(null, user._id.toString())
 })
 
-passport.deserializeUser(async (id, done) => {
-  console.log("Deserializing user with ID:", id)
+passport.deserializeUser(async (id: string, done) => {
   try {
+    console.log("Attempting to deserialize user with ID:", id)
     const user = await User.findById(id)
+
     if (!user) {
-      console.log("User not found during deserialization")
+      console.log("No user found during deserialization for ID:", id)
       return done(null, false)
     }
-    console.log("User found during deserialization:", user)
-    done(null, user)
+
+    console.log("Successfully deserialized user:", user._id)
+    return done(null, user)
   } catch (error) {
-    console.error("Error during deserialization:", error)
-    done(error)
+    console.error("Deserialization error:", error)
+    return done(error)
   }
+})
+
+// Add this middleware to help debug session issues
+app.use((req: any, res: any, next) => {
+  console.log("Session middleware debug:", {
+    sessionID: req.sessionID,
+    sessionUser: req.session?.passport?.user,
+    reqUser: req.user,
+    isAuthenticated: req.isAuthenticated(),
+  })
+  next()
 })
 
 // Enable CORS for all routes
