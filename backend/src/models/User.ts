@@ -14,6 +14,10 @@ const userSchema = new Schema({
     type: Boolean,
     default: false,
   },
+  profileSetup: {
+    type: Boolean,
+    default: false,
+  },
 })
 
 userSchema.plugin(passportLocalMongoose, {
@@ -26,7 +30,7 @@ userSchema.plugin(passportLocalMongoose, {
     IncorrectPasswordError: "Incorrect email or password",
     IncorrectUsernameError: "Incorrect email or password",
     MissingPasswordError: "No password was given",
-    AttemptTooSoonError: "Account is currently locked. Try again later",
+    AttemptTooSoonError: "Too many login attempts. Please try again later",
     TooManyAttemptsError:
       "Account locked due to too many failed login attempts",
   },

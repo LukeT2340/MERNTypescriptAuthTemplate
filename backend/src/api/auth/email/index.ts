@@ -49,6 +49,7 @@ router.post("/login", (req, res, next) => {
         _id: user._id,
         email: user.email,
         verified: user.verified,
+        profileSetup: user.profileSetup,
       }
 
       return res.status(200).json({
@@ -79,6 +80,8 @@ router.post("/sign-up", async (req: any, res: any, next: any) => {
       const userResponse = {
         _id: registeredUser._id,
         email: registeredUser.email,
+        profileSetup: user.profileSetup,
+        verified: user.verified,
       }
 
       return res.status(201).json({
